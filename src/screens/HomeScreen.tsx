@@ -1,16 +1,31 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { color, radius, space, type, MIN_TAP_TARGET } from '../theme/tokens';
 import { PlaceCard } from '../components/PlaceCard';
-import { mockLocations, mockLiveReports } from '../data/mockLocations';
+import { mockLocations } from '../data/mockLocations';
+import { getReports, subscribe, type LiveReport } from '../data/reportsStore';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 export function HomeScreen({ navigation }: Props) {
+  const [liveReports, setLiveReports] = useState<LiveReport[]>(getReports());
+
+  useEffect(() => {
+    // Refresh whenever the store changes (e.g. after submitting an Obstacle Report)
+    // and also whenever this screen comes back into focus, since the store may have
+    // changed while we were on another screen.
+    const unsub = subscribe(() => setLiveReports(getReports()));
+    const unsubFocus = navigation.addListener('focus', () => setLiveReports(getReports()));
+    return () => {
+      unsub();
+      unsubFocus();
+    };
+  }, [navigation]);
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -59,7 +74,7 @@ export function HomeScreen({ navigation }: Props) {
           <Text style={[type.eyebrow, { textTransform: 'none' }]}>live</Text>
         </View>
 
-        {mockLiveReports.map((r) => (
+        {liveReports.map((r) => (
           <View key={r.id} style={styles.reportRow} accessible accessibilityLabel={`${r.title}. ${r.meta}`}>
             <View style={[styles.reportIcon, { backgroundColor: r.kind === 'warning' ? color.redBg : color.greenBg }]}>
               <MaterialCommunityIcons

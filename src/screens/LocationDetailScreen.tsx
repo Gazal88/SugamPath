@@ -62,9 +62,20 @@ export function LocationDetailScreen({ route, navigation }: Props) {
         </View>
 
         <Pressable
+          style={styles.startRoute}
+          accessibilityRole="button"
+          accessibilityLabel={`Start the most accessible route to ${location.name}`}
+          onPress={() => navigation.navigate('RouteView', { id: location.id })}
+        >
+          <MaterialCommunityIcons name="map-marker-path" size={18} color={color.accentInk} />
+          <Text style={[type.bodyMedium, { color: color.accentInk }]}>Start most accessible route</Text>
+        </Pressable>
+
+        <Pressable
           style={styles.reportStrip}
           accessibilityRole="button"
           accessibilityLabel="See something wrong? Report an obstacle with a photo"
+          onPress={() => navigation.navigate('ObstacleReport', { id: location.id })}
         >
           <View style={styles.reportIcon}>
             <MaterialCommunityIcons name="camera" size={18} color={color.accentInk} />
@@ -120,12 +131,23 @@ const styles = StyleSheet.create({
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: color.green },
   stripWrap: { paddingHorizontal: space.xl, paddingVertical: space.md },
   breakdown: { paddingHorizontal: space.xl, paddingTop: space.xs },
+  startRoute: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: space.sm,
+    marginHorizontal: space.xl,
+    marginTop: space.xl,
+    backgroundColor: color.accent,
+    borderRadius: radius.lg,
+    minHeight: MIN_TAP_TARGET,
+  },
   reportStrip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.md,
     marginHorizontal: space.xl,
-    marginTop: space.xl,
+    marginTop: space.md,
     backgroundColor: color.ink,
     borderRadius: radius.lg,
     padding: space.lg,
