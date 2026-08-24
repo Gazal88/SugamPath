@@ -19,11 +19,24 @@ jobs:
           node-version: 20
           cache: npm
 
+      - name: Check for package.json
+        id: check
+        run: |
+          if [ -f package.json ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "No package.json found yet — skipping install/lint/test."
+          fi
+
       - name: Install dependencies
+        if: steps.check.outputs.exists == 'true'
         run: npm install
 
       - name: Run lint (if configured)
+        if: steps.check.outputs.exists == 'true'
         run: npm run lint --if-present
 
       - name: Run tests (if configured)
+        if: steps.check.outputs.exists == 'true'
         run: npm test --if-present
