@@ -53,6 +53,7 @@ export function HomeScreen({ navigation }: Props) {
           style={styles.voiceRow}
           accessibilityRole="button"
           accessibilityLabel="Search by voice"
+          onPress={() => navigation.navigate('VoiceSearch')}
         >
           <MaterialCommunityIcons name="microphone" size={18} color={color.ink} />
           <Text style={type.bodyMedium}>Or search by voice</Text>
@@ -146,3 +147,4 @@ const styles = StyleSheet.create({
   },
   reportIcon: { width: 36, height: 36, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center' },
 });
+

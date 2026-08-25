@@ -5,6 +5,7 @@ import { HomeScreen } from '../screens/HomeScreen';
 import { LocationDetailScreen } from '../screens/LocationDetailScreen';
 import { RouteViewScreen } from '../screens/RouteViewScreen';
 import { ObstacleReportScreen } from '../screens/ObstacleReportScreen';
+import { VoiceSearchScreen } from '../screens/VoiceSearchScreen';
 
 // Add new screens here as we build them (AdminDashboard, ...).
 // Keep params typed so screens stay type-safe when passed ids/coords from the API.
@@ -13,6 +14,7 @@ export type RootStackParamList = {
   LocationDetail: { id: string };
   RouteView: { id: string };
   ObstacleReport: { id?: string };
+  VoiceSearch: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -25,6 +27,7 @@ export function RootNavigator() {
         <Stack.Screen name="LocationDetail" component={LocationDetailScreen} />
         <Stack.Screen name="RouteView" component={RouteViewScreen} options={{ presentation: 'modal' }} />
         <Stack.Screen name="ObstacleReport" component={ObstacleReportScreen} options={{ presentation: 'modal' }} />
+        <Stack.Screen name="VoiceSearch" component={VoiceSearchScreen} options={{ presentation: 'modal' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
