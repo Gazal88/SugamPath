@@ -37,7 +37,7 @@ const createReport = async (req, res) => {
 // PATCH /api/reports/:id/verify — mark a report as verified or rejected
 const verifyReport = async (req, res) => {
   const { id } = req.params;
-  const { status, verified_by } = req.body;
+  const { status } = req.body;
 
   if (!['verified', 'rejected'].includes(status)) {
     return res.status(400).json({ error: 'status must be "verified" or "rejected"' });
@@ -45,7 +45,7 @@ const verifyReport = async (req, res) => {
 
   const { data, error } = await supabase
     .from('reports')
-    .update({ status, verified_by, verified_at: new Date().toISOString() })
+    .update({ status, verified_by: req.user.id, verified_at: new Date().toISOString() })
     .eq('id', id)
     .select()
     .single();
