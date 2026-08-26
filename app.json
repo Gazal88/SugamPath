@@ -4,9 +4,12 @@
     "slug": "sugampath",
     "version": "0.1.0",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "backgroundColor": "#F1F0EB",
     "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
       "backgroundColor": "#F1F0EB"
     },
     "assetBundlePatterns": [
@@ -14,20 +17,34 @@
     ],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.sugampath.app"
+      "bundleIdentifier": "com.sugampath.app",
+      "infoPlist": {
+        "NSSpeechRecognitionUsageDescription": "Allow $(PRODUCT_NAME) to use speech recognition.",
+        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to use the microphone."
+      }
     },
     "android": {
       "package": "com.sugampath.app",
       "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#F1F0EB"
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
-      "bundler": "metro"
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-font",
       "expo-speech-recognition"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "d6d66a9d-4e02-4d0d-be45-da4b3f325742"
+      }
+    }
   }
 }
