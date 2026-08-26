@@ -11,17 +11,12 @@ import { color, radius, space, type, MIN_TAP_TARGET } from '../theme/tokens';
 import { mockLocations } from '../data/mockLocations';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
+import { speak } from '../voice/tts';
+import { startListening, stopListening } from '../voice/stt';
 
 type VoiceState = 'idle' | 'listening' | 'processing' | 'result';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'VoiceSearch'>;
-
-// Placeholder phrases simulating STT output until Role 4's real STT module is wired in.
-const SIMULATED_PHRASES = [
-  'Find the nearest accessible metro station',
-  'Take me to Central Library',
-  'Is Civic Hospital wheelchair accessible',
-];
 
 export function VoiceSearchScreen({ navigation }: Props) {
   const [voiceState, setVoiceState] = useState<VoiceState>('idle');
@@ -44,27 +39,39 @@ export function VoiceSearchScreen({ navigation }: Props) {
     }
   }, [voiceState]);
 
-  function startListening() {
-    setVoiceState('listening');
-    setTranscript('');
-    setMatchedLocation(null);
+async function startVoiceSearch() {
+  setVoiceState('listening');
+  setTranscript('');
+  setMatchedLocation(null);
 
-    // Simulated STT: replace with @react-native-voice/voice or expo-speech-recognition
-    // once Role 4 ships it. Keeping this simulated so the surrounding UI/UX can be
-    // validated (timing, states, accessibility announcements) independent of that work.
-    setTimeout(() => {
+  await startListening(
+    (text) => {
       setVoiceState('processing');
-      const phrase = SIMULATED_PHRASES[Math.floor(Math.random() * SIMULATED_PHRASES.length)];
-      setTranscript(phrase);
+      setTranscript(text);
 
-      setTimeout(() => {
-        const match = mockLocations.find((l) => phrase.toLowerCase().includes(l.name.toLowerCase().split(' ')[0]))
-          ?? mockLocations[0];
-        setMatchedLocation(match);
-        setVoiceState('result');
-      }, 900);
-    }, 1800);
-  }
+      const normalizedText = text.toLowerCase().trim();
+      let match = null;
+
+      if (normalizedText.includes('library') || normalizedText.includes('book') || normalizedText.includes('read') || normalizedText.includes('central')) {
+        match = mockLocations.find(l => l.id === 'loc-2') ?? null;
+      } else if (normalizedText.includes('hospital') || normalizedText.includes('opd') || normalizedText.includes('clinic') || normalizedText.includes('medical') || normalizedText.includes('civic')) {
+        match = mockLocations.find(l => l.id === 'loc-3') ?? null;
+      } else if ((normalizedText.includes('metro') || normalizedText.includes('subway') || normalizedText.includes('station')) && !normalizedText.includes('railway')) {
+        match = mockLocations.find(l => l.id === 'loc-1') ?? null;
+      }
+
+      setMatchedLocation(match);
+      setVoiceState('result');
+    },
+    () => {
+      // Speech recognition has ended.
+    },
+    (error) => {
+      console.log('STT error:', error);
+      setVoiceState('idle');
+    }
+  );
+}
 
   function handleConfirm() {
     if (matchedLocation) {
@@ -110,23 +117,38 @@ export function VoiceSearchScreen({ navigation }: Props) {
           </>
         )}
 
-        {voiceState === 'result' && matchedLocation && (
-          <View style={styles.resultCard} accessible accessibilityLabel={`Found ${matchedLocation.name}, score ${matchedLocation.score}`}>
-            <Text style={type.eyebrow}>You said</Text>
-            <Text style={[type.body, { marginBottom: space.lg }]}>"{transcript}"</Text>
-            <Text style={type.h2}>{matchedLocation.name}</Text>
-            <Text style={type.caption}>{matchedLocation.area}</Text>
-          </View>
+        {voiceState === 'result' && (
+          matchedLocation ? (
+            <View style={styles.resultCard} accessible accessibilityLabel={`Found ${matchedLocation.name}, score ${matchedLocation.score}`}>
+              <Text style={type.eyebrow}>You said</Text>
+              <Text style={[type.body, { marginBottom: space.lg }]}>"{transcript}"</Text>
+              <Text style={type.h2}>{matchedLocation.name}</Text>
+              <Text style={type.caption}>{matchedLocation.area}</Text>
+            </View>
+          ) : (
+            <View style={styles.resultCard} accessible accessibilityLabel="No matching destination found">
+              <Text style={type.eyebrow}>You said</Text>
+              <Text style={[type.body, { marginBottom: space.lg }]}>"{transcript}"</Text>
+              <Text style={type.h2}>No match found</Text>
+              <Text style={type.caption}>Try saying "library" or "hospital"</Text>
+            </View>
+          )
         )}
 
         <Pressable
-          onPress={voiceState === 'idle' ? startListening : voiceState === 'result' ? handleConfirm : undefined}
+          onPress={
+            voiceState === 'idle' || (voiceState === 'result' && !matchedLocation)
+              ? startVoiceSearch
+              : voiceState === 'result' && matchedLocation
+              ? handleConfirm
+              : undefined
+          }
           disabled={voiceState === 'listening' || voiceState === 'processing'}
           accessibilityRole="button"
           accessibilityLabel={
-            voiceState === 'idle' ? 'Start voice search' :
-            voiceState === 'result' ? `Go to ${matchedLocation?.name}` :
-            'Listening'
+            voiceState === 'idle' || (voiceState === 'result' && !matchedLocation)
+              ? 'Start voice search'
+              : `Go to ${matchedLocation?.name}`
           }
           style={styles.micWrap}
         >
@@ -134,20 +156,20 @@ export function VoiceSearchScreen({ navigation }: Props) {
             style={[
               styles.micButton,
               voiceState === 'listening' && styles.micActive,
-              voiceState === 'result' && styles.micResult,
+              voiceState === 'result' && matchedLocation && styles.micResult,
               { transform: [{ scale: pulse }] },
             ]}
           >
             <MaterialCommunityIcons
-              name={voiceState === 'result' ? 'arrow-right' : 'microphone'}
+              name={voiceState === 'result' && matchedLocation ? 'arrow-right' : 'microphone'}
               size={30}
-              color={voiceState === 'listening' || voiceState === 'result' ? color.accentInk : color.paper}
+              color={voiceState === 'listening' || (voiceState === 'result' && matchedLocation) ? color.accentInk : color.paper}
             />
           </Animated.View>
         </Pressable>
 
         {voiceState === 'result' && (
-          <Pressable onPress={startListening} accessibilityRole="button" accessibilityLabel="Try again">
+          <Pressable onPress={startVoiceSearch} accessibilityRole="button" accessibilityLabel="Try again">
             <Text style={[type.bodyMedium, { color: color.inkSoft, marginTop: space.lg }]}>Try again</Text>
           </Pressable>
         )}
