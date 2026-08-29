@@ -9,7 +9,7 @@ interface MapViewPropsExtended extends MapViewProps {
   locations?: MapLocation[];
   routeCoordinates?: Coordinate[];
   selectedLocation?: MapLocation | null;
-  onMarkerPress?: (location: MapLocation) => void;
+  onLocationMarkerPress?: (location: MapLocation) => void;
   centerCoordinate?: Coordinate | null;
 }
 
@@ -17,7 +17,7 @@ export function MapView({
   locations = [],
   routeCoordinates = [],
   selectedLocation = null,
-  onMarkerPress,
+  onLocationMarkerPress,
   centerCoordinate = null,
   style,
   ...rest
@@ -41,7 +41,6 @@ export function MapView({
       <NativeMapView
         ref={mapRef}
         style={styles.map}
-        provider={null} // Force standard native maps container rather than Google Maps API
         mapType="none" // Hides Apple Maps/Google Maps vector layers completely
         initialRegion={MAPS_CONFIG.DEFAULT_REGION}
         rotateEnabled={true}
@@ -76,7 +75,7 @@ export function MapView({
             <Marker
               key={loc.id}
               coordinate={{ latitude: loc.latitude, longitude: loc.longitude }}
-              onPress={() => onMarkerPress?.(loc)}
+              onPress={() => onLocationMarkerPress?.(loc)}
               title={loc.name}
               description={loc.address}
               pinColor={isSelected ? color.blue : color.accent}

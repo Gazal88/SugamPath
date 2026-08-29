@@ -145,7 +145,7 @@ export function MapScreen({ navigation }: Props) {
             locations={locations}
             routeCoordinates={route ? route.coordinates : []}
             selectedLocation={selectedLocation}
-            onMarkerPress={handleMarkerSelect}
+            onLocationMarkerPress={handleMarkerSelect}
             centerCoordinate={centerCoordinate}
           />
         )}
