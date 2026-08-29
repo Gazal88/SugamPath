@@ -24,7 +24,7 @@ export function HomeScreen({ navigation }: Props) {
           accessibilityRole="search"
           accessibilityLabel="Search for a place or address"
           onPress={() => {
-            // Week 5+: opens search flow wired to Backend location API
+            navigation.navigate('Map');
           }}
         >
           <Ionicons name="search" size={18} color={color.inkSoft} />

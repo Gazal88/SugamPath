@@ -3,12 +3,14 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeScreen } from '../screens/HomeScreen';
 import { LocationDetailScreen } from '../screens/LocationDetailScreen';
+import { MapScreen } from '../screens/MapScreen';
 
 // Add new screens here as we build them (RouteView, ObstacleReport, AdminDashboard, ...).
 // Keep params typed so screens stay type-safe when passed ids/coords from the API.
 export type RootStackParamList = {
   Home: undefined;
   LocationDetail: { id: string };
+  Map: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -19,6 +21,7 @@ export function RootNavigator() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="LocationDetail" component={LocationDetailScreen} />
+        <Stack.Screen name="Map" component={MapScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
