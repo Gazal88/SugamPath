@@ -1,0 +1,13 @@
+train: C:/sugampath-ai-work/train/images
+val: C:/sugampath-ai-work/valid/images
+test: C:/sugampath-ai-work/test/images
+
+nc: 1
+names: ['0']
+
+roboflow:
+  workspace: prakash-roy-nj20b
+  project: ramp-ync8p-utdbe
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/prakash-roy-nj20b/ramp-ync8p-utdbe/dataset/1
